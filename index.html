@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KB PERK | 教室紹介</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-blur"></div>
+
+    <div class="app-container">
+        
+        <header class="app-header">
+            <a href="https://kbperk.github.io/main/" class="btn-back">✕ 閉じる</a>
+        </header>
+
+        <div class="progress-container" id="progress-bar-container">
+            </div>
+
+        <div class="slide-container" id="slide-container">
+            <div class="loading-text">教室情報を読み込み中...</div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn prev-btn" onclick="prevSlide()">◀</button>
+            <button class="nav-btn next-btn" onclick="nextSlide()">▶</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ▼ 新しいリポジトリのJSONパスに書き換えてください
+        const JSON_URL = "https://kbperk.github.io/class-info/classData.json";
+        
+        let slidesData = [];
+        let currentIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // キャッシュ回避のためにパラメータ付与
+                const res = await fetch(JSON_URL + '?v=' + new Date().getTime());
+                if (!res.ok) throw new Error("通信エラー");
+                const allData = await res.json();
+                
+                // 公開(is_public:true)のものだけを抽出し、表示順(order)で並び替え
+                slidesData = allData.filter(item => item.is_public === true);
+                
+                if (slidesData.length === 0) {
+                    document.getElementById('slide-container').innerHTML = '<div class="loading-text">現在公開中の情報はありません。</div>';
+                    return;
+                }
+
+                initSlides();
+            } catch (err) {
+                document.getElementById('slide-container').innerHTML = '<div class="loading-text" style="color:red;">読み込みに失敗しました</div>';
+            }
+        });
+
+        function initSlides() {
+            // プログレスバーの生成
+            const progressContainer = document.getElementById('progress-bar-container');
+            progressContainer.innerHTML = "";
+            slidesData.forEach((_, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'progress-segment';
+                const fill = document.createElement('div');
+                fill.className = 'progress-fill';
+                fill.id = `progress-${index}`;
+                segment.appendChild(fill);
+                progressContainer.appendChild(segment);
+            });
+
+            renderSlide(0);
+        }
+
+        function renderSlide(index) {
+            const container = document.getElementById('slide-container');
+            const data = slidesData[index];
+
+            // メディアの判定（YouTube URLがあれば最優先、なければ画像）
+            let mediaHtml = '';
+            if (data.youtube_url && data.youtube_url !== "") {
+                mediaHtml = `<iframe class="media-content" src="${data.youtube_url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } else if (data.image && data.image !== "") {
+                mediaHtml = `<img class="media-content" src="${data.image}" alt="${data.title}">`;
+            } else {
+                mediaHtml = `<div class="media-content no-image">画像がありません</div>`;
+            }
+
+            const html = `
+                <div class="slide-content animate-fade">
+                    <h2 class="slide-title">${data.title || "無題"}</h2>
+                    
+                    <div class="media-wrapper">
+                        ${mediaHtml}
+                    </div>
+                    
+                    <div class="slide-description-area">
+                        <div class="slide-description">${data.description.replace(/\n/g, '<br>') || "説明がありません"}</div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            updateProgressBar(index);
+        }
+
+        function updateProgressBar(index) {
+            slidesData.forEach((_, i) => {
+                const fill = document.getElementById(`progress-${i}`);
+                if (i < index) {
+                    fill.style.width = '100%'; // 過去のスライドは満タン
+                } else if (i === index) {
+                    fill.style.width = '100%'; // 現在のスライドもハイライト
+                } else {
+                    fill.style.width = '0%';   // 未来のスライドは空
+                }
+            });
+        }
+
+        function nextSlide() {
+            if (currentIndex < slidesData.length - 1) {
+                currentIndex++;
+                renderSlide(currentIndex);
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide(currentIndex);
+            }
+        }
+    </script>
+</body>
+</html>

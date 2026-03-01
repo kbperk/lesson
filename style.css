@@ -1,0 +1,225 @@
+@charset "UTF-8";
+
+/* =========================================
+   基本リセット & フォント
+   ========================================= */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Zen Maru Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background-color: #333; /* PC閲覧時の背景色 */
+    overflow: hidden;       /* スクロール禁止 */
+    touch-action: manipulation;
+}
+
+/* =========================================
+   PC閲覧時のレイアウト（中央にスマホサイズ固定）
+   ========================================= */
+.background-blur {
+    position: fixed;
+    inset: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.1"><circle cx="50" cy="50" r="40" fill="%23ffffff"/></svg>');
+    background-size: 50px 50px;
+    z-index: -1;
+}
+
+.app-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: #1a1a1a;
+    color: white;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* PC画面（幅が広い場合）は中央にスマホ比率の枠を作る */
+@media (min-width: 600px) {
+    .app-container {
+        width: 400px; /* スマホの一般的な幅 */
+        height: 850px;
+        max-height: 95vh;
+        margin-top: 2.5vh;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+}
+
+/* =========================================
+   ヘッダー & プログレスバー
+   ========================================= */
+.app-header {
+    padding: 15px 15px 5px;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 10;
+}
+
+.btn-back {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.progress-container {
+    display: flex;
+    gap: 4px;
+    padding: 0 10px 10px;
+    z-index: 10;
+}
+
+.progress-segment {
+    flex: 1;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #ffffff;
+    transition: width 0.3s ease;
+}
+
+/* =========================================
+   スライドコンテンツエリア
+   ========================================= */
+.slide-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.slide-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 15px 80px; /* 下部ナビゲーション用の余白 */
+}
+
+/* タイトル（レッスンのテーマ） */
+.slide-title {
+    font-size: 1.6rem;
+    margin: 10px 0 20px;
+    text-align: center;
+    color: #32D74B;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-weight: bold;
+}
+
+/* メディア（画像・動画）枠 */
+.media-wrapper {
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 16 / 9; /* 動画が綺麗に収まる比率 */
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.media-content {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画像の場合は枠に合わせて切り抜く */
+}
+
+.no-image {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* 説明文エリア（教室の様子） */
+.slide-description-area {
+    flex: 1;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    overflow-y: auto; /* 長い場合はスクロール可能に */
+}
+
+/* スクロールバーを見えなくする */
+.slide-description-area::-webkit-scrollbar {
+    display: none;
+}
+
+.slide-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #fff;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.loading-text {
+    text-align: center;
+    margin-top: 50px;
+    color: white;
+}
+
+/* =========================================
+   常時表示ナビゲーションボタン（◀ ▶）
+   ========================================= */
+.nav-buttons {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 20;
+    pointer-events: none; /* エリア自体のタップは貫通させる */
+}
+
+.nav-btn {
+    pointer-events: auto; /* ボタン部分はタップ可能 */
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-btn:active {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(0.95);
+}
+
+/* =========================================
+   アニメーション
+   ========================================= */
+.animate-fade {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
