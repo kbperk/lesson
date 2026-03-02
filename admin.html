@@ -71,8 +71,8 @@
     <div id="status-toast"></div>
 
     <script>
-        // ▼ 新しく作成したGASのウェブアプリURLに書き換えてください
-        const GAS_API_URL = "YOUR_NEW_GAS_WEB_APP_URL";
+        // ▼ 新しいGASのURLを設定
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwVLnGec14GKCjdRNFxfY3iNPHXjcR9IxGgUYCfCaJKKqt0cbI5YhLtGpfeCFEs6K_ulg/exec";
 
         // GASと通信する関数
         async function callApi(action, payload = {}) {
@@ -214,13 +214,11 @@
                 }
             });
 
-            // 重複があればエラーモーダルを表示して処理中断
             if (hasDuplicate) {
                 document.getElementById('error-modal').style.display = 'flex';
                 return;
             }
 
-            // 重複がなければ送信処理へ
             uploadData();
         }
 
@@ -238,11 +236,9 @@
             toast.style.display = "none";
             
             const formData = {};
-            // テキスト、数値、隠しフィールドの取得
             document.querySelectorAll('#mainForm input[type="text"], #mainForm input[type="number"], #mainForm input[type="hidden"], #mainForm textarea').forEach(inp => {
                 formData[inp.name] = inp.value;
             });
-            // チェックボックス（公開設定）の取得
             document.querySelectorAll('#mainForm input[type="checkbox"]').forEach(inp => {
                 formData[inp.name] = inp.checked;
             });
