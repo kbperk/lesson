@@ -10,13 +10,11 @@
     <div class="background-blur"></div>
 
     <div class="app-container">
-        
         <header class="app-header">
             <a href="https://kbperk.github.io/main/" class="btn-back">✕ 閉じる</a>
         </header>
 
-        <div class="progress-container" id="progress-bar-container">
-            </div>
+        <div class="progress-container" id="progress-bar-container"></div>
 
         <div class="slide-container" id="slide-container">
             <div class="loading-text">教室情報を読み込み中...</div>
@@ -26,11 +24,9 @@
             <button class="nav-btn prev-btn" onclick="prevSlide()">◀</button>
             <button class="nav-btn next-btn" onclick="nextSlide()">▶</button>
         </div>
-
     </div>
 
     <script>
-        // ▼ 修正箇所：データ取得先を「lesson」リポジトリへ変更
         const JSON_URL = "https://kbperk.github.io/lesson/classData.json";
         
         let slidesData = [];
@@ -38,12 +34,10 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // キャッシュ回避のためにパラメータ付与してデータ取得
                 const res = await fetch(JSON_URL + '?v=' + new Date().getTime());
                 if (!res.ok) throw new Error("通信エラー");
                 const allData = await res.json();
                 
-                // 公開(is_public:true)のものだけを抽出し、表示順(order)で並び替え
                 slidesData = allData.filter(item => item.is_public === true);
                 
                 if (slidesData.length === 0) {
@@ -53,12 +47,10 @@
 
                 initSlides();
             } catch (err) {
-                // 通信失敗またはJSON解析失敗時のエラー表示
                 document.getElementById('slide-container').innerHTML = '<div class="loading-text" style="color:red;">読み込みに失敗しました</div>';
             }
         });
 
-        // スライドの初期化
         function initSlides() {
             const progressContainer = document.getElementById('progress-bar-container');
             progressContainer.innerHTML = "";
@@ -75,15 +67,36 @@
             renderSlide(0);
         }
 
-        // 指定したインデックスのスライドを描画
+        // ▼ 追加：URLを強制的に正しい埋め込み形式（embed）に変換する関数
+        function getSafeEmbedUrl(url) {
+            if (!url) return "";
+            let videoId = "";
+            if (url.includes("youtu.be/")) {
+                videoId = url.split("youtu.be/")[1].split("?")[0];
+            } else if (url.includes("youtube.com/watch")) {
+                try {
+                    const urlObj = new URL(url);
+                    videoId = urlObj.searchParams.get("v");
+                } catch(e) {}
+            } else if (url.includes("youtube.com/shorts/")) {
+                videoId = url.split("shorts/")[1].split("?")[0];
+            } else if (url.includes("youtube.com/embed/")) {
+                return url; // すでに正しい形式の場合はそのまま返す
+            }
+            
+            // IDが取得できた場合はembed形式にして返す、できなければ元のURLを返す
+            return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : url;
+        }
+
         function renderSlide(index) {
             const container = document.getElementById('slide-container');
             const data = slidesData[index];
 
-            // メディアの判定（YouTube URLが最優先、次いで画像）
             let mediaHtml = '';
             if (data.youtube_url && data.youtube_url !== "") {
-                mediaHtml = `<iframe class="media-content" src="${data.youtube_url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                // 関数を通してからiframeに渡す
+                const safeUrl = getSafeEmbedUrl(data.youtube_url);
+                mediaHtml = `<iframe class="media-content" src="${safeUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             } else if (data.image && data.image !== "") {
                 mediaHtml = `<img class="media-content" src="${data.image}" alt="${data.title}">`;
             } else {
@@ -108,7 +121,6 @@
             updateProgressBar(index);
         }
 
-        // プログレスバーの進行状況を更新
         function updateProgressBar(index) {
             slidesData.forEach((_, i) => {
                 const fill = document.getElementById(`progress-${i}`);
@@ -122,7 +134,6 @@
             });
         }
 
-        // 次のスライドへ
         function nextSlide() {
             if (currentIndex < slidesData.length - 1) {
                 currentIndex++;
@@ -130,7 +141,6 @@
             }
         }
 
-        // 前のスライドへ
         function prevSlide() {
             if (currentIndex > 0) {
                 currentIndex--;
