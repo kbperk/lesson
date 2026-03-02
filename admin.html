@@ -33,7 +33,6 @@
         
         #login-screen { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        /* エラー表示用のモーダル */
         #error-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; text-align: center; border: 3px solid red; max-width: 300px; width: 90%; }
         .modal-content button { margin-top: 15px; background: #333; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
@@ -42,7 +41,6 @@
     </style>
 </head>
 <body>
-
     <div id="login-screen">
         <h2>教室紹介 管理画面</h2>
         <input type="password" id="auth-password" placeholder="パスワードを入力">
@@ -53,7 +51,6 @@
     <div id="main-interface" class="container">
         <h2 style="text-align: center; color: #32D74B;">教室情報 編集</h2>
         <p style="font-size: 12px; color: #666; text-align: center;">YouTubeのURLを入力すると画像より優先して表示されます。</p>
-        
         <form id="mainForm">
             <div id="form-container">読み込み中...</div>
             <button type="button" class="btn-fixed" id="submitBtn" onclick="validateAndUpload()">一括保存する</button>
@@ -71,10 +68,8 @@
     <div id="status-toast"></div>
 
     <script>
-        // ▼ 新しいGASのURLを設定
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwVLnGec14GKCjdRNFxfY3iNPHXjcR9IxGgUYCfCaJKKqt0cbI5YhLtGpfeCFEs6K_ulg/exec";
 
-        // GASと通信する関数
         async function callApi(action, payload = {}) {
             const pass = document.getElementById('auth-password').value;
             const res = await fetch(GAS_API_URL, {
@@ -87,36 +82,26 @@
             return json.data;
         }
 
-        // ログイン処理
         async function tryLogin() {
             const btn = document.querySelector('#login-screen button');
             const msg = document.getElementById('login-msg');
-            msg.innerText = ""; 
-            btn.innerText = "認証中..."; 
-            btn.disabled = true;
-
+            msg.innerText = ""; btn.innerText = "認証中..."; btn.disabled = true;
             try {
                 const data = await callApi('getClassData');
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-interface').style.display = 'block';
                 createForm(data);
             } catch (err) { 
-                msg.innerText = err.message; 
-                btn.innerText = "ログイン"; 
-                btn.disabled = false;
+                msg.innerText = err.message; btn.innerText = "ログイン"; btn.disabled = false;
             }
         }
 
-        // フォームの生成（10枠分）
         function createForm(currentData) {
             const container = document.getElementById('form-container');
             container.innerHTML = ""; 
-
             for (let i = 1; i <= 10; i++) {
-                // 保存されているデータを探す（idで紐付け）
                 const d = currentData.find(x => x.id === i) || {};
-                const isPublic = d.is_public !== false; // デフォルトは公開(true)扱い
-                
+                const isPublic = d.is_public !== false; 
                 const html = `
                   <div class="card js-card" id="card_${i}">
                     <div class="toggle-wrap">
@@ -129,7 +114,6 @@
                             </label>
                         </div>
                     </div>
-
                     <div class="flex-row">
                         <div style="flex:0.3">
                             <label>表示順</label>
@@ -140,15 +124,12 @@
                             <input type="text" name="title_${i}" value="${d.title || ''}" placeholder="レッスンのテーマ">
                         </div>
                     </div>
-
                     <label style="margin-top:15px; color:#ff0000;">YouTube URL (こちらが優先表示)</label>
                     <input type="text" name="youtube_url_${i}" value="${d.youtube_url || ''}" placeholder="例: https://youtu.be/..." onblur="formatYouTubeUrl(this)">
-                    
                     <label style="margin-top:15px;">または 画像 (YouTubeがない場合表示)</label>
                     <input type="file" accept="image/*" onchange="handleFile(this, ${i})">
                     <input type="hidden" name="file_image_${i}" id="file_image_${i}">
                     ${d.image ? `<p style="font-size:12px; color:green; margin:5px 0 0;">現在画像が登録されています</p>` : ''}
-
                     <label style="margin-top:15px;">説明文</label>
                     <textarea name="description_${i}" placeholder="教室の様子">${d.description || ''}</textarea>
                   </div>`;
@@ -156,7 +137,6 @@
             }
         }
 
-        // 画像ファイルをBase64に変換
         function handleFile(input, index) {
             const file = input.files[0];
             if (file) {
@@ -168,94 +148,60 @@
             }
         }
 
-        // YouTube URLを埋め込み用(embed)に自動変換する
+        // ▼ 修正：強力な正規表現を使ったURL変換
         function formatYouTubeUrl(inputElement) {
             let url = inputElement.value.trim();
             if (!url) return;
+            if (url.includes("youtube.com/embed/")) return; 
 
-            let videoId = "";
-            if (url.includes("youtu.be/")) {
-                videoId = url.split("youtu.be/")[1].split("?")[0];
-            } else if (url.includes("youtube.com/watch")) {
-                try {
-                    const urlObj = new URL(url);
-                    videoId = urlObj.searchParams.get("v");
-                } catch(e) {}
-            } else if (url.includes("youtube.com/shorts/")) {
-                videoId = url.split("shorts/")[1].split("?")[0];
-            } else if (url.includes("youtube.com/embed/")) {
-                return; // すでに正しい形式
-            }
-            
-            if (videoId) {
-                // 自動再生なし、関連動画非表示の設定をつけて変換
-                inputElement.value = `https://www.youtube.com/embed/${videoId}?rel=0`;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+
+            if (match && match[2].length === 11) {
+                inputElement.value = `https://www.youtube.com/embed/${match[2]}?rel=0`;
             }
         }
 
-        // 保存前のチェック（順番の重複確認）
         function validateAndUpload() {
-            // カードのエラー表示をリセット
             document.querySelectorAll('.js-card').forEach(card => card.classList.remove('error'));
-
             const orderInputs = document.querySelectorAll('.js-order-input');
             const orderValues = [];
             let hasDuplicate = false;
-
             orderInputs.forEach(input => {
                 const val = input.value;
                 if(val !== "") {
                     if (orderValues.includes(val)) {
                         hasDuplicate = true;
-                        // 重複しているカードを赤くする
                         input.closest('.card').classList.add('error');
                     }
                     orderValues.push(val);
                 }
             });
-
             if (hasDuplicate) {
                 document.getElementById('error-modal').style.display = 'flex';
                 return;
             }
-
             uploadData();
         }
 
-        function closeErrorModal() {
-            document.getElementById('error-modal').style.display = 'none';
-        }
+        function closeErrorModal() { document.getElementById('error-modal').style.display = 'none'; }
 
-        // データ送信処理
         async function uploadData() {
             const btn = document.getElementById('submitBtn');
             const toast = document.getElementById('status-toast');
-            
-            btn.innerText = "送信中..."; 
-            btn.disabled = true;
-            toast.style.display = "none";
+            btn.innerText = "送信中..."; btn.disabled = true; toast.style.display = "none";
             
             const formData = {};
-            document.querySelectorAll('#mainForm input[type="text"], #mainForm input[type="number"], #mainForm input[type="hidden"], #mainForm textarea').forEach(inp => {
-                formData[inp.name] = inp.value;
-            });
-            document.querySelectorAll('#mainForm input[type="checkbox"]').forEach(inp => {
-                formData[inp.name] = inp.checked;
-            });
+            document.querySelectorAll('#mainForm input[type="text"], #mainForm input[type="number"], #mainForm input[type="hidden"], #mainForm textarea').forEach(inp => formData[inp.name] = inp.value);
+            document.querySelectorAll('#mainForm input[type="checkbox"]').forEach(inp => formData[inp.name] = inp.checked);
 
             try {
                 const resultMsg = await callApi('saveClassData', formData);
-                toast.innerText = resultMsg;
-                toast.style.color = "green";
+                toast.innerText = resultMsg; toast.style.color = "green";
             } catch(e) {
-                toast.innerText = "エラー: " + e.message;
-                toast.style.color = "red";
+                toast.innerText = "エラー: " + e.message; toast.style.color = "red";
             }
-            
-            toast.style.display = "block";
-            btn.innerText = "一括保存する"; 
-            btn.disabled = false;
-            
+            toast.style.display = "block"; btn.innerText = "一括保存する"; btn.disabled = false;
             setTimeout(() => { toast.style.display = "none"; }, 5000);
         }
     </script>
