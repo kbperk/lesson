@@ -30,15 +30,15 @@
     </div>
 
     <script>
-        // ▼ 新しいリポジトリのJSONパスに書き換えてください
-        const JSON_URL = "https://kbperk.github.io/class-info/classData.json";
+        // ▼ 修正箇所：データ取得先を「lesson」リポジトリへ変更
+        const JSON_URL = "https://kbperk.github.io/lesson/classData.json";
         
         let slidesData = [];
         let currentIndex = 0;
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // キャッシュ回避のためにパラメータ付与
+                // キャッシュ回避のためにパラメータ付与してデータ取得
                 const res = await fetch(JSON_URL + '?v=' + new Date().getTime());
                 if (!res.ok) throw new Error("通信エラー");
                 const allData = await res.json();
@@ -53,12 +53,13 @@
 
                 initSlides();
             } catch (err) {
+                // 通信失敗またはJSON解析失敗時のエラー表示
                 document.getElementById('slide-container').innerHTML = '<div class="loading-text" style="color:red;">読み込みに失敗しました</div>';
             }
         });
 
+        // スライドの初期化
         function initSlides() {
-            // プログレスバーの生成
             const progressContainer = document.getElementById('progress-bar-container');
             progressContainer.innerHTML = "";
             slidesData.forEach((_, index) => {
@@ -74,11 +75,12 @@
             renderSlide(0);
         }
 
+        // 指定したインデックスのスライドを描画
         function renderSlide(index) {
             const container = document.getElementById('slide-container');
             const data = slidesData[index];
 
-            // メディアの判定（YouTube URLがあれば最優先、なければ画像）
+            // メディアの判定（YouTube URLが最優先、次いで画像）
             let mediaHtml = '';
             if (data.youtube_url && data.youtube_url !== "") {
                 mediaHtml = `<iframe class="media-content" src="${data.youtube_url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
@@ -106,19 +108,21 @@
             updateProgressBar(index);
         }
 
+        // プログレスバーの進行状況を更新
         function updateProgressBar(index) {
             slidesData.forEach((_, i) => {
                 const fill = document.getElementById(`progress-${i}`);
                 if (i < index) {
-                    fill.style.width = '100%'; // 過去のスライドは満タン
+                    fill.style.width = '100%';
                 } else if (i === index) {
-                    fill.style.width = '100%'; // 現在のスライドもハイライト
+                    fill.style.width = '100%';
                 } else {
-                    fill.style.width = '0%';   // 未来のスライドは空
+                    fill.style.width = '0%';
                 }
             });
         }
 
+        // 次のスライドへ
         function nextSlide() {
             if (currentIndex < slidesData.length - 1) {
                 currentIndex++;
@@ -126,6 +130,7 @@
             }
         }
 
+        // 前のスライドへ
         function prevSlide() {
             if (currentIndex > 0) {
                 currentIndex--;
