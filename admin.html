@@ -18,7 +18,6 @@
         input[type="text"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
         textarea { resize: vertical; height: 100px; }
         
-        /* トグルスイッチ UI */
         .toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px; }
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -35,10 +34,8 @@
         .btn-fixed:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         
         #login-screen { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 10px; text-align: center; }
-        #status-toast { position: fixed; bottom: 90px; right: 30px; background: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: bold; display: none; z-index: 999; }
         
-        /* モーダル */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 20px; flex-direction: column; }
         .modal-content { background: white; padding: 20px; border-radius: 12px; max-width: 400px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-content.error { border: 4px solid red; text-align: center; }
         .modal-btn-close { width: 100%; margin-top: 15px; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -62,8 +59,22 @@
         <form id="mainForm">
             <div id="form-container">読み込み中...</div>
             <button type="button" class="btn-fixed" id="submitBtn" onclick="validateAndUpload()">💾 一括更新する</button>
-            <div id="status-toast"></div>
         </form>
+    </div>
+
+    <div id="loading-modal" class="modal-overlay">
+        <div style="background: white; padding: 30px 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="color: #32D74B; margin: 0; font-size: 1.5rem;">通信中...</h3>
+            <p style="margin-top: 10px; color: #666; font-weight: bold;">データを送信しています</p>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="color:#32D74B; margin-top:0;">✅ 反映を完了しました</h3>
+            <p style="font-weight: bold; margin-top: 10px;">反映には数分必要です</p>
+            <button class="modal-btn-close" onclick="closeSuccessModal()">OK</button>
+        </div>
     </div>
 
     <div id="help-modal" class="modal-overlay">
@@ -154,7 +165,12 @@
                     <input type="text" name="youtube_url_${i}" value="${d.youtube_url || ''}" placeholder="例: https://youtu.be/..." onblur="formatYouTubeUrl(this)">
                     
                     <label style="margin-top:15px; color:#3498db;">📷 画像 (YouTubeがない場合表示)</label>
-                    <input type="file" accept="image/*" onchange="handleFile(this, ${i})">
+                    
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+                        <input type="file" accept="image/*" id="file_input_${i}" onchange="handleFile(this, ${i})" style="margin-top: 0;">
+                        <button type="button" onclick="clearImage(${i})" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap;">消去</button>
+                    </div>
+
                     <input type="hidden" name="file_image_${i}" id="file_image_${i}">
                     <input type="hidden" name="image_name_${i}" id="image_name_${i}" value="${d.image_name || ''}">
                     <div class="file-name-display" id="file_name_display_${i}">${fileNameDisplay}</div>
@@ -183,6 +199,16 @@
                 imageBase.value = ""; nameInput.value = "";
                 nameDisplay.innerText = "未登録"; nameDisplay.style.background = "#eee";
             }
+        }
+
+        // 💡追加：画像消去関数
+        function clearImage(index) {
+            document.getElementById(`file_input_${index}`).value = "";
+            document.getElementById(`file_image_${index}`).value = "";
+            document.getElementById(`image_name_${index}`).value = "";
+            const nameDisplay = document.getElementById(`file_name_display_${index}`);
+            nameDisplay.innerText = "未登録"; 
+            nameDisplay.style.background = "#eee";
         }
 
         function formatYouTubeUrl(inputElement) {
@@ -217,26 +243,30 @@
         function openHelpModal() { document.getElementById('help-modal').style.display = 'flex'; }
         function closeHelpModal() { document.getElementById('help-modal').style.display = 'none'; }
         function closeErrorModal() { document.getElementById('error-modal').style.display = 'none'; }
+        function closeSuccessModal() { document.getElementById('success-modal').style.display = 'none'; }
 
+        // 💡変更：通信中モーダル・完了モーダルの制御
         async function uploadData() {
-            if(!confirm("更新しますか？")) return;
             const btn = document.getElementById('submitBtn');
-            const toast = document.getElementById('status-toast');
             
-            btn.innerText = "⏳ 送信中..."; btn.disabled = true; toast.style.display = "none";
+            // 通信中モーダルを表示
+            document.getElementById('loading-modal').style.display = 'flex';
+            btn.disabled = true;
             
             const formData = {};
             document.querySelectorAll('#mainForm input[type="text"], #mainForm input[type="number"], #mainForm input[type="hidden"], #mainForm textarea').forEach(inp => formData[inp.name] = inp.value);
             document.querySelectorAll('#mainForm input[type="checkbox"]').forEach(inp => formData[inp.name] = inp.checked);
 
             try {
-                const resultMsg = await callApi('saveClassData', formData);
-                toast.innerText = "✅ " + resultMsg; toast.style.color = "green";
+                await callApi('saveClassData', formData);
+                document.getElementById('loading-modal').style.display = 'none';
+                document.getElementById('success-modal').style.display = 'flex';
             } catch(e) {
-                toast.innerText = "❌ エラー: " + e.message; toast.style.color = "red";
+                document.getElementById('loading-modal').style.display = 'none';
+                document.getElementById('error-text').innerText = "エラー: " + e.message;
+                document.getElementById('error-modal').style.display = 'flex';
             }
-            toast.style.display = "block"; btn.innerText = "💾 一括更新する"; btn.disabled = false;
-            setTimeout(() => { toast.style.display = "none"; }, 5000);
+            btn.disabled = false;
         }
     </script>
 </body>
