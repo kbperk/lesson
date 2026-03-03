@@ -6,7 +6,8 @@
     "title": "テスト1",
     "youtube_url": "",
     "description": "tstt1",
-    "image": "https://kbperk.github.io/lesson/class_1.jpg?v=1772460385475"
+    "image": "https://kbperk.github.io/lesson/class_1.jpg?v=1772543719039",
+    "image_name": "1000057982.jpg"
   },
   {
     "id": 2,
@@ -15,7 +16,8 @@
     "title": "test2",
     "youtube_url": "https://www.youtube.com/embed/V25r5qLDTJs?rel=0",
     "description": "test2",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 3,
@@ -23,8 +25,9 @@
     "is_public": true,
     "title": "",
     "youtube_url": "",
-    "description": "",
-    "image": ""
+    "description": "test3",
+    "image": "https://kbperk.github.io/lesson/class_3.jpg?v=1772543721117",
+    "image_name": "1000057971.png"
   },
   {
     "id": 4,
@@ -33,7 +36,8 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 5,
@@ -42,7 +46,8 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 6,
@@ -51,7 +56,8 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 7,
@@ -60,7 +66,8 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 8,
@@ -69,7 +76,8 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 9,
@@ -78,7 +86,8 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   },
   {
     "id": 10,
@@ -87,6 +96,7 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": ""
+    "image": "",
+    "image_name": ""
   }
 ]
