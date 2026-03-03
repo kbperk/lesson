@@ -3,21 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KB PERK | 教室紹介</title>
+    <title>KB PARK | 教室の紹介</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        /* =====================================
+           背景のリッチな装飾（ふわふわ漂う円）
+           ===================================== */
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #F0FFF4; touch-action: none; font-family: 'Zen Maru Gothic', sans-serif; }
+        .bg-blobs { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; animation: float 10s infinite ease-in-out alternate; }
+        .blob-1 { width: 300px; height: 300px; background: #32D74B; top: -50px; left: -100px; }
+        .blob-2 { width: 400px; height: 400px; background: #30D5C8; bottom: -100px; right: -150px; animation-delay: -5s; }
+        .blob-3 { width: 250px; height: 250px; background: #FFD60A; top: 40%; left: 50%; animation-delay: -2s; }
+        @keyframes float { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(50px) scale(1.1); } }
+
+        /* =====================================
+           立体文字（3Dポップ）のデザイン
+           ===================================== */
+        .page-title { position: absolute; top: 20px; left: 0; width: 100%; text-align: center; z-index: 100; pointer-events: none; }
+        .text-3d-title {
+            color: #32D74B; font-size: 2.2rem; margin: 0; letter-spacing: 2px;
+            text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, 3px 3px 0 #000, 4px 4px 0 #000, 5px 5px 0 #000;
+        }
+
+        /* =====================================
+           ストーリーズ風 スライドコンテナレイアウト
+           ===================================== */
+        .app-container {
+            position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; overflow: hidden; z-index: 10;
+        }
+        @media (min-width: 600px) {
+            .app-container { width: 400px; height: 850px; max-height: 95vh; margin: 2.5vh auto 0; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        }
+
+        .btn-back { position: fixed; bottom: 30px; right: 20px; background: #333; color: white; text-decoration: none; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 1rem; box-shadow: 0 6px 15px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.2s; }
+        .btn-back:active { transform: scale(0.95); }
+
+        /* プログレスバー */
+        .progress-container { display: flex; gap: 4px; padding: 80px 15px 10px; z-index: 10; }
+        .progress-segment { flex: 1; height: 4px; background-color: rgba(0, 0, 0, 0.2); border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background-color: #32D74B; transition: width 0.3s ease; }
+
+        /* スライド領域 */
+        .slide-container { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        .slide-content { display: flex; flex-direction: column; height: 100%; padding: 0 15px 80px; animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-title { font-size: 1.5rem; margin: 5px 0 15px; text-align: center; color: #333; font-weight: bold; background: white; border-radius: 20px; padding: 5px; box-shadow: 0 4px 0 #ccc; }
+        
+        /* 💡動画/画像を大きく見せる設定 */
+        .media-wrapper { flex: 1; width: 100%; background: #000; border-radius: 12px; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3); border: 4px solid white; }
+        .media-content { width: 100%; height: 100%; object-fit: contain; }
+        .no-image { color: white; font-weight: bold; }
+
+        /* 💡説明文エリアを半分の高さに固定しスクロール可能に */
+        .slide-description-area { flex: 0 0 130px; margin-top: 15px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px); border-radius: 12px; padding: 15px; overflow-y: auto; border: 2px solid #32D74B; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .slide-description { font-size: 0.95rem; line-height: 1.6; color: #333; white-space: pre-wrap; word-break: break-word; font-weight: bold; }
+
+        /* スクロールバー装飾 */
+        .slide-description-area::-webkit-scrollbar { width: 6px; }
+        .slide-description-area::-webkit-scrollbar-track { background: transparent; }
+        .slide-description-area::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+
+        /* ナビゲーションボタン */
+        .nav-buttons { position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 20; pointer-events: none; }
+        .nav-btn { pointer-events: auto; background: rgba(255, 255, 255, 0.9); border: 3px solid #32D74B; color: #32D74B; width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); -webkit-tap-highlight-color: transparent; }
+        .nav-btn:active { transform: scale(0.95); background: #32D74B; color: white; }
+    </style>
 </head>
 <body>
-    <div class="background-blur"></div>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+    </div>
+
+    <div class="page-title">
+        <h1 class="text-3d-title">教室の紹介</h1>
+    </div>
 
     <div class="app-container">
-        <header class="app-header">
-            <a href="https://kbperk.github.io/main/" class="btn-back">✕ 閉じる</a>
-        </header>
-
         <div class="progress-container" id="progress-bar-container"></div>
 
         <div class="slide-container" id="slide-container">
-            <div class="loading-text">教室情報を読み込み中...</div>
+            <h2 style="text-align:center; padding-top:150px; color:#333;">教室情報を読み込み中...🚀</h2>
         </div>
 
         <div class="nav-buttons">
@@ -26,38 +95,46 @@
         </div>
     </div>
 
+    <a href="https://kbperk.github.io/main/" class="btn-back"><span>◀</span> メインに戻る</a>
+
     <script>
+        // JSON取得元URL
         const JSON_URL = "https://kbperk.github.io/lesson/classData.json";
         
         let slidesData = [];
         let currentIndex = 0;
 
-        // 初期データ読み込み
+        // ページ読み込み時の処理
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                // キャッシュを防ぐためURLにタイムスタンプを付与
                 const res = await fetch(JSON_URL + '?v=' + new Date().getTime());
                 if (!res.ok) throw new Error("通信エラー");
                 const allData = await res.json();
                 
-                // 公開設定のデータのみ抽出
-                slidesData = allData.filter(item => item.is_public === true);
+                // 💡未登録枠のスキップロジック：「公開」かつ「タイトル、画像、動画のどれかが存在する」枠のみを抽出
+                slidesData = allData.filter(item => {
+                    return item.is_public === true && (item.title !== "" || item.image !== "" || item.youtube_url !== "");
+                });
                 
+                // 表示するデータがない場合
                 if (slidesData.length === 0) {
-                    document.getElementById('slide-container').innerHTML = '<div class="loading-text">現在公開中の情報はありません。</div>';
+                    document.getElementById('slide-container').innerHTML = '<h3 style="text-align:center; margin-top:100px;">現在公開中の情報はありません。</h3>';
                     return;
                 }
                 
                 initSlides();
             } catch (err) {
-                document.getElementById('slide-container').innerHTML = '<div class="loading-text" style="color:red;">読み込みに失敗しました</div>';
+                document.getElementById('slide-container').innerHTML = '<h3 style="text-align:center; color:red; margin-top:100px;">読み込みに失敗しました🙇‍♂️</h3>';
             }
         });
 
-        // スライド UI 初期化
+        // スライドの初期化
         function initSlides() {
             const progressContainer = document.getElementById('progress-bar-container');
             progressContainer.innerHTML = "";
             
+            // データ数に合わせてプログレスバーを生成
             slidesData.forEach((_, index) => {
                 const segment = document.createElement('div');
                 segment.className = 'progress-segment';
@@ -68,42 +145,43 @@
                 progressContainer.appendChild(segment);
             });
             
+            // 最初のスライドを描画
             renderSlide(0);
         }
 
-        // URLの強制正規化 (表示エラー防止フェイルセーフ)
+        // 💡強力なYouTube URL変換ロジック（フェイルセーフ）
         function getSafeEmbedUrl(url) {
             if (!url) return "";
             if (url.includes("youtube.com/embed/")) return url;
-
+            
+            // 様々なYouTube URL形式から動画ID(11桁)を抽出する正規表現
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
             const match = url.match(regExp);
-
             if (match && match[2].length === 11) {
                 return `https://www.youtube.com/embed/${match[2]}?rel=0`;
             }
             return url; 
         }
 
-        // スライド描画処理
+        // スライドの描画処理
         function renderSlide(index) {
             const container = document.getElementById('slide-container');
             const data = slidesData[index];
 
             let mediaHtml = '';
-            
-            // YouTube優先表示ロジック
+            // 動画と画像の優先処理
             if (data.youtube_url && data.youtube_url !== "") {
                 const safeUrl = getSafeEmbedUrl(data.youtube_url);
                 mediaHtml = `<iframe class="media-content" src="${safeUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             } else if (data.image && data.image !== "") {
                 mediaHtml = `<img class="media-content" src="${data.image}" alt="${data.title}">`;
             } else {
-                mediaHtml = `<div class="media-content no-image">画像がありません</div>`;
+                mediaHtml = `<div class="media-content no-image">No Image</div>`;
             }
 
+            // HTMLの構築
             const html = `
-                <div class="slide-content animate-fade">
+                <div class="slide-content">
                     <h2 class="slide-title">${data.title || "無題"}</h2>
                     <div class="media-wrapper">${mediaHtml}</div>
                     <div class="slide-description-area">
@@ -116,30 +194,28 @@
             updateProgressBar(index);
         }
 
-        // プログレスバー更新処理
+        // プログレスバーの更新
         function updateProgressBar(index) {
             slidesData.forEach((_, i) => {
                 const fill = document.getElementById(`progress-${i}`);
-                if (i < index) fill.style.width = '100%';
-                else if (i === index) fill.style.width = '100%';
+                if (i <= index) fill.style.width = '100%';
                 else fill.style.width = '0%';
             });
         }
 
-        // 次へ進む
+        // 💡ロータリー式（ループ）スライダロジック
         function nextSlide() {
-            if (currentIndex < slidesData.length - 1) {
-                currentIndex++;
-                renderSlide(currentIndex);
-            }
+            if (slidesData.length <= 1) return;
+            // 次のインデックスを計算（最後なら0に戻る）
+            currentIndex = (currentIndex + 1) % slidesData.length;
+            renderSlide(currentIndex);
         }
 
-        // 前へ戻る
         function prevSlide() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                renderSlide(currentIndex);
-            }
+            if (slidesData.length <= 1) return;
+            // 前のインデックスを計算（0なら最後に移動）
+            currentIndex = (currentIndex - 1 + slidesData.length) % slidesData.length;
+            renderSlide(currentIndex);
         }
     </script>
 </body>
