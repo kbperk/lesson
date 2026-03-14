@@ -3,51 +3,46 @@
     "id": 1,
     "order": 1,
     "is_public": true,
-    "title": "テスト1",
+    "title": "定期教室",
     "youtube_url": "",
-    "description": "若い頃の店長",
-    "image": "https://kbperk.github.io/lesson/class_1.jpg?v=1772546873513",
-    "image_name": "1000016463.jpg"
+    "description": "毎週の定期教室。４月より、新スタッフ加入により、増枠しました！\n・トランポリンを通して思考力を養い、人との関りを学ぶ。\n・目標は「生涯体育」元小学校の教師が一人ひとりに丁寧に指導。\n・１クラス８人までの少人数制の為、十分な運動量が確保でき、レッスン\n　時間内の習熟度が高い。",
+    "image": "https://kbperk.github.io/lesson/class_1.jpg?v=1772546873513"
   },
   {
     "id": 2,
     "order": 2,
     "is_public": true,
-    "title": "test2",
-    "youtube_url": "https://www.youtube.com/embed/V25r5qLDTJs?rel=0",
-    "description": "test2",
-    "image": "",
-    "image_name": ""
+    "title": "隔週　土曜日午前教室",
+    "youtube_url": "",
+    "description": "ちょこっとトランポリン\n・隔週・土曜日の午前なので、忙しいご家庭にピッタリ\n・トランポリン未経験・未就学の子どもも多く初めての習い事に\n※　９：３０の枠は満員です。\n　１０：４０分の枠は残り２枠あります。",
+    "image": "https://kbperk.github.io/lesson/class_2.jpg?v=1773462092365"
   },
   {
     "id": 3,
     "order": 3,
     "is_public": true,
-    "title": "",
+    "title": "単発教室",
     "youtube_url": "",
-    "description": "うえださん",
-    "image": "https://kbperk.github.io/lesson/class_3.jpg?v=1772546875058",
-    "image_name": "1000045454.jpg"
+    "description": "隔週土曜日に開催！単発教室\nお手軽トランポリンレッスン(４月４日)\n・トランポリンの簡単な技を習得したい人向け。\nアクロバット教室(４月２５日)\n・大人気！バク転をはじめとした、アクロバッティックな技の\n　習得をしたい人向け",
+    "image": "https://kbperk.github.io/lesson/class_3.jpg?v=1773462094116"
   },
   {
     "id": 4,
     "order": 4,
-    "is_public": true,
+    "is_public": false,
     "title": "",
     "youtube_url": "",
     "description": "若い頃の店長の遠征\n",
-    "image": "https://kbperk.github.io/lesson/class_4.jpg?v=1772546877557",
-    "image_name": "1000045169.jpg"
+    "image": "https://kbperk.github.io/lesson/class_4.jpg?v=1772546877557"
   },
   {
     "id": 5,
     "order": 5,
-    "is_public": true,
+    "is_public": false,
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": "",
-    "image_name": ""
+    "image": ""
   },
   {
     "id": 6,
@@ -56,8 +51,7 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": "",
-    "image_name": ""
+    "image": ""
   },
   {
     "id": 7,
@@ -66,8 +60,7 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": "",
-    "image_name": ""
+    "image": ""
   },
   {
     "id": 8,
@@ -76,8 +69,7 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": "",
-    "image_name": ""
+    "image": ""
   },
   {
     "id": 9,
@@ -86,8 +78,7 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": "",
-    "image_name": ""
+    "image": ""
   },
   {
     "id": 10,
@@ -96,7 +87,6 @@
     "title": "",
     "youtube_url": "",
     "description": "",
-    "image": "",
-    "image_name": ""
+    "image": ""
   }
 ]
