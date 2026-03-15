@@ -7,14 +7,21 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%; /* 全画面表示の基礎 */
+}
+
 body {
     margin: 0;
     padding: 0;
     font-family: "Zen Maru Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-    /* PC閲覧時の背景を明るいグレー系に変更 */
     background-color: #f0f5f0; 
     overflow: hidden;       /* スクロール禁止 */
     touch-action: manipulation;
+    
+    /* Chrome等のアドレスバー対応（動的ビューポート） */
+    height: 100vh;          /* 古いブラウザ用予備 */
+    height: 100dvh;         /* 最新ブラウザ用自動調整 */
 }
 
 /* =========================================
@@ -30,14 +37,16 @@ body {
 .app-container {
     position: relative;
     width: 100vw;
-    height: 100vh;
-    /* 白ベース・黒文字に変更 */
     background-color: #ffffff;
     color: #333333;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    
+    /* Chrome等のアドレスバー対応（動的ビューポート） */
+    height: 100vh;          /* 古いブラウザ用予備 */
+    height: 100dvh;         /* 最新ブラウザ用自動調整 */
 }
 
 /* PC画面（幅が広い場合）は中央にスマホ比率の枠を作る */
@@ -46,6 +55,7 @@ body {
         width: 400px; /* スマホの一般的な幅 */
         height: 850px;
         max-height: 95vh;
+        max-height: 95dvh; /* PCでも動的ビューポートを適用 */
         margin-top: 2.5vh;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -58,14 +68,14 @@ body {
 .progress-container {
     display: flex;
     gap: 4px;
-    padding: 20px 15px 10px; /* 上部余白を確保（ヘッダー廃止のため） */
+    padding: 20px 15px 10px; 
     z-index: 10;
 }
 
 .progress-segment {
     flex: 1;
     height: 4px;
-    background-color: #e0e0e0; /* 未到達は薄いグレー */
+    background-color: #e0e0e0; 
     border-radius: 2px;
     overflow: hidden;
 }
@@ -73,7 +83,7 @@ body {
 .progress-fill {
     height: 100%;
     width: 0%;
-    background-color: #32D74B; /* メインカラー（緑） */
+    background-color: #32D74B; 
     transition: width 0.3s ease;
 }
 
@@ -100,7 +110,7 @@ body {
     font-size: 1.6rem;
     margin: 10px 0 15px;
     text-align: center;
-    color: #32D74B; /* メインカラー（緑） */
+    color: #32D74B; 
     font-weight: bold;
 }
 
@@ -108,7 +118,7 @@ body {
 .media-wrapper {
     flex: 1; /* 余った空間をすべて画像枠に使う */
     width: 100%;
-    min-height: 0; /* flexbox内で縮小可能にするため必須 */
+    min-height: 0; 
     background: transparent;
     border-radius: 12px;
     overflow: hidden;
@@ -126,8 +136,8 @@ body {
 
 /* 説明文エリア（教室の様子）：サイズを固定しスクロールさせる */
 .slide-description-area {
-    height: 120px; /* 縦幅を半分程度に固定 */
-    flex: 0 0 120px; /* サイズを伸縮させない */
+    height: 120px; /* 縦幅を固定 */
+    flex: 0 0 120px; 
     background: #f9f9f9;
     border: 1px solid #eeeeee;
     border-radius: 12px;
@@ -169,16 +179,16 @@ body {
     left: 0;
     width: 100%;
     display: flex;
-    justify-content: space-between; /* 均等配置（左・中央・右） */
+    justify-content: space-between; 
     align-items: center;
     padding: 0 20px;
     z-index: 20;
-    pointer-events: none; /* エリア自体のタップは貫通させる */
+    pointer-events: none; 
 }
 
 .nav-btn {
     pointer-events: auto;
-    background: #32D74B; /* 緑ボタン */
+    background: #32D74B; 
     border: none;
     color: white;
     width: 50px;

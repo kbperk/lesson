@@ -40,13 +40,12 @@
                 if (!res.ok) throw new Error("通信エラー");
                 const allData = await res.json();
                 
-                // ▼ 修正箇所：公開設定 かつ 「画像」または「YouTube」が設定されているデータだけを抽出
+                // 公開設定 かつ 「画像」または「YouTube」が設定されているデータだけを抽出
                 slidesData = allData.filter(item => {
                     const isPublic = item.is_public === true;
                     const hasImage = item.image && item.image !== "";
                     const hasYouTube = item.youtube_url && item.youtube_url !== "";
                     
-                    // 公開ONで、かつメディア(画像か動画)のどちらかが存在するものだけを残す
                     return isPublic && (hasImage || hasYouTube);
                 });
                 
@@ -66,7 +65,6 @@
             const progressContainer = document.getElementById('progress-bar-container');
             progressContainer.innerHTML = "";
             
-            // 抽出されたデータの数だけプログレスバー（進捗メモリ）を作成
             slidesData.forEach((_, index) => {
                 const segment = document.createElement('div');
                 segment.className = 'progress-segment';
@@ -77,9 +75,7 @@
                 progressContainer.appendChild(segment);
             });
             
-            // 左右ボタンの表示・非表示の初期設定（1枚しかない場合はボタンを隠す等の制御用）
             updateNavButtons();
-            
             renderSlide(0);
         }
 
@@ -104,7 +100,6 @@
 
             let mediaWrapperHtml = '';
             
-            // YouTube優先表示ロジック
             if (data.youtube_url && data.youtube_url !== "") {
                 const safeUrl = getSafeEmbedUrl(data.youtube_url);
                 mediaWrapperHtml = `
@@ -148,14 +143,12 @@
             const prevBtn = document.querySelector('.prev-btn');
             const nextBtn = document.querySelector('.next-btn');
             
-            // 最初のスライドなら◀を隠す（または薄くする）
             if (currentIndex === 0) {
                 prevBtn.style.visibility = 'hidden';
             } else {
                 prevBtn.style.visibility = 'visible';
             }
             
-            // 最後のスライドなら▶を隠す
             if (currentIndex === slidesData.length - 1) {
                 nextBtn.style.visibility = 'hidden';
             } else {
