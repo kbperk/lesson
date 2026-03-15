@@ -8,7 +8,9 @@
 }
 
 html, body {
-    height: 100%; /* 全画面表示の基礎 */
+    height: 100%;
+    /* Chrome等でのスワイプによる画面全体の揺れ・更新を防ぐ */
+    overscroll-behavior: none; 
 }
 
 body {
@@ -19,7 +21,7 @@ body {
     overflow: hidden;       /* スクロール禁止 */
     touch-action: manipulation;
     
-    /* Chrome等のアドレスバー対応（動的ビューポート） */
+    /* 動的ビューポート（URLバーを計算した正確な高さ） */
     height: 100vh;          /* 古いブラウザ用予備 */
     height: 100dvh;         /* 最新ブラウザ用自動調整 */
 }
@@ -40,22 +42,23 @@ body {
     background-color: #ffffff;
     color: #333333;
     margin: 0 auto;
+    
+    /* 上から順にブロックを積み上げる強固なレイアウト */
     display: flex;
     flex-direction: column;
     overflow: hidden;
     
-    /* Chrome等のアドレスバー対応（動的ビューポート） */
-    height: 100vh;          /* 古いブラウザ用予備 */
-    height: 100dvh;         /* 最新ブラウザ用自動調整 */
+    height: 100vh;
+    height: 100dvh;
 }
 
 /* PC画面（幅が広い場合）は中央にスマホ比率の枠を作る */
 @media (min-width: 600px) {
     .app-container {
-        width: 400px; /* スマホの一般的な幅 */
+        width: 400px;
         height: 850px;
         max-height: 95vh;
-        max-height: 95dvh; /* PCでも動的ビューポートを適用 */
+        max-height: 95dvh;
         margin-top: 2.5vh;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -63,9 +66,10 @@ body {
 }
 
 /* =========================================
-   プログレスバー
+   プログレスバー (上部ブロック)
    ========================================= */
 .progress-container {
+    flex: 0 0 auto; /* 高さを固定し潰れないようにする */
     display: flex;
     gap: 4px;
     padding: 20px 15px 10px; 
@@ -88,27 +92,29 @@ body {
 }
 
 /* =========================================
-   スライドコンテンツエリア
+   スライドコンテンツエリア (中央ブロック)
    ========================================= */
 .slide-container {
-    flex: 1;
-    position: relative;
+    flex: 1; /* 余った高さをすべて吸収する */
+    min-height: 0; /* flexbox内で要素がはみ出さないための魔法のコード */
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .slide-content {
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    padding: 0 15px 90px; /* 下部ボタン用余白 */
+    padding: 0 15px 10px; /* 下部の余白を通常通りに */
 }
 
 /* タイトル（レッスンのテーマ） */
 .slide-title {
+    flex: 0 0 auto;
     font-size: 1.6rem;
-    margin: 10px 0 15px;
+    margin: 5px 0 15px;
     text-align: center;
     color: #32D74B; 
     font-weight: bold;
@@ -118,7 +124,7 @@ body {
 .media-wrapper {
     flex: 1; /* 余った空間をすべて画像枠に使う */
     width: 100%;
-    min-height: 0; 
+    min-height: 0; /* 縮小を許可 */
     background: transparent;
     border-radius: 12px;
     overflow: hidden;
@@ -136,8 +142,8 @@ body {
 
 /* 説明文エリア（教室の様子）：サイズを固定しスクロールさせる */
 .slide-description-area {
-    height: 120px; /* 縦幅を固定 */
-    flex: 0 0 120px; 
+    flex: 0 0 120px; /* 縦幅を120pxに完全固定 */
+    height: 120px; 
     background: #f9f9f9;
     border: 1px solid #eeeeee;
     border-radius: 12px;
@@ -171,23 +177,19 @@ body {
 }
 
 /* =========================================
-   常時表示ナビゲーションボタン ＆ TOPに戻る
+   常時表示ナビゲーションボタン ＆ TOPに戻る (下部ブロック)
    ========================================= */
 .nav-buttons {
-    position: absolute;
-    bottom: 20px;
-    left: 0;
+    flex: 0 0 auto; /* 高さを固定。絶対配置(浮遊)をやめて確実に下部に置く */
     width: 100%;
     display: flex;
     justify-content: space-between; 
     align-items: center;
-    padding: 0 20px;
+    padding: 10px 20px 25px; /* 下部の安全な余白 */
     z-index: 20;
-    pointer-events: none; 
 }
 
 .nav-btn {
-    pointer-events: auto;
     background: #32D74B; 
     border: none;
     color: white;
@@ -210,7 +212,6 @@ body {
 
 /* 中央の「TOPに戻る」ボタン */
 .btn-back {
-    pointer-events: auto;
     color: #32D74B;
     background: #ffffff;
     border: 2px solid #32D74B;
