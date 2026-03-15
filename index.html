@@ -101,7 +101,7 @@
                 const safeUrl = getSafeEmbedUrl(data.youtube_url);
                 mediaHtml = `<iframe class="media-content" src="${safeUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             } else if (data.image && data.image !== "") {
-                // 画像タップ時に拡大モーダルを開く処理(onclick)とカーソル変更クラスを追加
+                // タップ時に拡大する関数とカーソルアイコンを追加
                 mediaHtml = `<img class="media-content cursor-zoom" src="${data.image}" alt="${data.title}" onclick="openModal(this.src)">`;
             } else {
                 mediaHtml = `<div class="media-content no-image">画像がありません</div>`;
