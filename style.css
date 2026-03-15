@@ -11,7 +11,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Zen Maru Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-    background-color: #333; /* PC閲覧時の背景色 */
+    /* PC閲覧時の背景を明るいグレー系に変更 */
+    background-color: #f0f5f0; 
     overflow: hidden;       /* スクロール禁止 */
     touch-action: manipulation;
 }
@@ -22,8 +23,7 @@ body {
 .background-blur {
     position: fixed;
     inset: 0;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.1"><circle cx="50" cy="50" r="40" fill="%23ffffff"/></svg>');
-    background-size: 50px 50px;
+    background-color: #e6f0e6;
     z-index: -1;
 }
 
@@ -31,8 +31,9 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-color: #1a1a1a;
-    color: white;
+    /* 白ベース・黒文字に変更 */
+    background-color: #ffffff;
+    color: #333333;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -47,42 +48,24 @@ body {
         max-height: 95vh;
         margin-top: 2.5vh;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     }
 }
 
 /* =========================================
-   ヘッダー & プログレスバー
+   プログレスバー
    ========================================= */
-.app-header {
-    /* 元の15pxから25pxに変更し、少しだけ下にずらしました */
-    padding: 25px 15px 5px;
-    display: flex;
-    justify-content: flex-end;
-    z-index: 10;
-}
-
-.btn-back {
-    color: white;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 6px 12px;
-    border-radius: 20px;
-}
-
 .progress-container {
     display: flex;
     gap: 4px;
-    padding: 0 10px 10px;
+    padding: 20px 15px 10px; /* 上部余白を確保（ヘッダー廃止のため） */
     z-index: 10;
 }
 
 .progress-segment {
     flex: 1;
-    height: 3px;
-    background-color: rgba(255, 255, 255, 0.3);
+    height: 4px;
+    background-color: #e0e0e0; /* 未到達は薄いグレー */
     border-radius: 2px;
     overflow: hidden;
 }
@@ -90,7 +73,7 @@ body {
 .progress-fill {
     height: 100%;
     width: 0%;
-    background-color: #ffffff;
+    background-color: #32D74B; /* メインカラー（緑） */
     transition: width 0.3s ease;
 }
 
@@ -109,64 +92,63 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0 15px 80px; /* 下部ナビゲーション用の余白 */
+    padding: 0 15px 90px; /* 下部ボタン用余白 */
 }
 
 /* タイトル（レッスンのテーマ） */
 .slide-title {
     font-size: 1.6rem;
-    margin: 10px 0 20px;
+    margin: 10px 0 15px;
     text-align: center;
-    color: #32D74B;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    color: #32D74B; /* メインカラー（緑） */
     font-weight: bold;
 }
 
-/* メディア（画像・動画）枠 */
+/* メディア（画像・動画）枠：可能な限り拡大させる */
 .media-wrapper {
-    flex: 0 0 auto;
+    flex: 1; /* 余った空間をすべて画像枠に使う */
     width: 100%;
-    aspect-ratio: 16 / 9; /* 動画が綺麗に収まる比率 */
-    background: #000;
+    min-height: 0; /* flexbox内で縮小可能にするため必須 */
+    background: transparent;
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    margin-bottom: 15px;
 }
 
 .media-content {
     width: 100%;
     height: 100%;
-    /* 最初は小さくても全体を表示するため、cover から contain に変更 */
-    object-fit: contain; 
+    object-fit: contain; /* 全体を表示する */
 }
 
-.no-image {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* 説明文エリア（教室の様子） */
+/* 説明文エリア（教室の様子）：サイズを固定しスクロールさせる */
 .slide-description-area {
-    flex: 1;
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.1);
+    height: 120px; /* 縦幅を半分程度に固定 */
+    flex: 0 0 120px; /* サイズを伸縮させない */
+    background: #f9f9f9;
+    border: 1px solid #eeeeee;
     border-radius: 12px;
     padding: 15px;
-    overflow-y: auto; /* 長い場合はスクロール可能に */
+    overflow-y: auto; /* 文章が長い場合は縦スクロール */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
-/* スクロールバーを見えなくする */
+/* スクロールバーのデザイン（細く表示） */
 .slide-description-area::-webkit-scrollbar {
-    display: none;
+    width: 4px;
+}
+.slide-description-area::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
 }
 
 .slide-description {
     font-size: 1rem;
     line-height: 1.6;
-    color: #fff;
+    color: #444444;
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -174,11 +156,12 @@ body {
 .loading-text {
     text-align: center;
     margin-top: 50px;
-    color: white;
+    color: #666;
+    font-weight: bold;
 }
 
 /* =========================================
-   常時表示ナビゲーションボタン（◀ ▶）
+   常時表示ナビゲーションボタン ＆ TOPに戻る
    ========================================= */
 .nav-buttons {
     position: absolute;
@@ -186,16 +169,17 @@ body {
     left: 0;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* 均等配置（左・中央・右） */
+    align-items: center;
     padding: 0 20px;
     z-index: 20;
     pointer-events: none; /* エリア自体のタップは貫通させる */
 }
 
 .nav-btn {
-    pointer-events: auto; /* ボタン部分はタップ可能 */
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    pointer-events: auto;
+    background: #32D74B; /* 緑ボタン */
+    border: none;
     color: white;
     width: 50px;
     height: 50px;
@@ -205,13 +189,34 @@ body {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 10px rgba(50, 215, 75, 0.3);
     -webkit-tap-highlight-color: transparent;
 }
 
 .nav-btn:active {
-    background: rgba(255, 255, 255, 0.5);
+    background: #28a745;
     transform: scale(0.95);
+}
+
+/* 中央の「TOPに戻る」ボタン */
+.btn-back {
+    pointer-events: auto;
+    color: #32D74B;
+    background: #ffffff;
+    border: 2px solid #32D74B;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 10px 24px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-back:active {
+    background: #f0f0f0;
 }
 
 /* =========================================
@@ -227,10 +232,10 @@ body {
 }
 
 /* =========================================
-   全画面画像拡大モーダル用 (新規追加)
+   全画面画像拡大モーダル用
    ========================================= */
 .modal-overlay {
-    display: none; /* 初期は非表示 */
+    display: none;
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.95);

@@ -10,10 +10,6 @@
     <div class="background-blur"></div>
 
     <div class="app-container">
-        <header class="app-header">
-            <a href="https://kbperk.github.io/main/" class="btn-back">TOPに戻る</a>
-        </header>
-
         <div class="progress-container" id="progress-bar-container"></div>
 
         <div class="slide-container" id="slide-container">
@@ -22,6 +18,7 @@
 
         <div class="nav-buttons">
             <button class="nav-btn prev-btn" onclick="prevSlide()">◀</button>
+            <a href="https://kbperk.github.io/main/" class="btn-back">TOPに戻る</a>
             <button class="nav-btn next-btn" onclick="nextSlide()">▶</button>
         </div>
     </div>
@@ -43,8 +40,15 @@
                 if (!res.ok) throw new Error("通信エラー");
                 const allData = await res.json();
                 
-                // 公開設定のデータのみ抽出
-                slidesData = allData.filter(item => item.is_public === true);
+                // ▼ 修正箇所：公開設定 かつ 「画像」または「YouTube」が設定されているデータだけを抽出
+                slidesData = allData.filter(item => {
+                    const isPublic = item.is_public === true;
+                    const hasImage = item.image && item.image !== "";
+                    const hasYouTube = item.youtube_url && item.youtube_url !== "";
+                    
+                    // 公開ONで、かつメディア(画像か動画)のどちらかが存在するものだけを残す
+                    return isPublic && (hasImage || hasYouTube);
+                });
                 
                 if (slidesData.length === 0) {
                     document.getElementById('slide-container').innerHTML = '<div class="loading-text">現在公開中の情報はありません。</div>';
@@ -62,6 +66,7 @@
             const progressContainer = document.getElementById('progress-bar-container');
             progressContainer.innerHTML = "";
             
+            // 抽出されたデータの数だけプログレスバー（進捗メモリ）を作成
             slidesData.forEach((_, index) => {
                 const segment = document.createElement('div');
                 segment.className = 'progress-segment';
@@ -71,6 +76,9 @@
                 segment.appendChild(fill);
                 progressContainer.appendChild(segment);
             });
+            
+            // 左右ボタンの表示・非表示の初期設定（1枚しかない場合はボタンを隠す等の制御用）
+            updateNavButtons();
             
             renderSlide(0);
         }
@@ -94,23 +102,26 @@
             const container = document.getElementById('slide-container');
             const data = slidesData[index];
 
-            let mediaHtml = '';
+            let mediaWrapperHtml = '';
             
             // YouTube優先表示ロジック
             if (data.youtube_url && data.youtube_url !== "") {
                 const safeUrl = getSafeEmbedUrl(data.youtube_url);
-                mediaHtml = `<iframe class="media-content" src="${safeUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                mediaWrapperHtml = `
+                    <div class="media-wrapper">
+                        <iframe class="media-content" src="${safeUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>`;
             } else if (data.image && data.image !== "") {
-                // タップ時に拡大する関数とカーソルアイコンを追加
-                mediaHtml = `<img class="media-content cursor-zoom" src="${data.image}" alt="${data.title}" onclick="openModal(this.src)">`;
-            } else {
-                mediaHtml = `<div class="media-content no-image">画像がありません</div>`;
+                mediaWrapperHtml = `
+                    <div class="media-wrapper">
+                        <img class="media-content cursor-zoom" src="${data.image}" alt="${data.title}" onclick="openModal(this.src)">
+                    </div>`;
             }
 
             const html = `
                 <div class="slide-content animate-fade">
                     <h2 class="slide-title">${data.title || "無題"}</h2>
-                    <div class="media-wrapper">${mediaHtml}</div>
+                    ${mediaWrapperHtml}
                     <div class="slide-description-area">
                         <div class="slide-description">${data.description.replace(/\n/g, '<br>') || "説明がありません"}</div>
                     </div>
@@ -119,6 +130,7 @@
             
             container.innerHTML = html;
             updateProgressBar(index);
+            updateNavButtons();
         }
 
         // プログレスバー更新処理
@@ -129,6 +141,26 @@
                 else if (i === index) fill.style.width = '100%';
                 else fill.style.width = '0%';
             });
+        }
+
+        // ナビゲーションボタン（◀ ▶）の表示制御
+        function updateNavButtons() {
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            
+            // 最初のスライドなら◀を隠す（または薄くする）
+            if (currentIndex === 0) {
+                prevBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+            }
+            
+            // 最後のスライドなら▶を隠す
+            if (currentIndex === slidesData.length - 1) {
+                nextBtn.style.visibility = 'hidden';
+            } else {
+                nextBtn.style.visibility = 'visible';
+            }
         }
 
         // 次へ進む
@@ -147,7 +179,7 @@
             }
         }
 
-        // --- 画像拡大モーダル用関数 (新規追加) ---
+        // --- 画像拡大モーダル用関数 ---
         function openModal(imageSrc) {
             document.getElementById('modal-image').src = imageSrc;
             document.getElementById('image-modal').style.display = 'flex';
